@@ -1,0 +1,27 @@
+{
+  "name": "url_shortener",
+  "version": "1.0.0",
+  "description": "a basic raw idea of URL shortener",
+  "keywords": [
+    "url",
+    "shortener",
+    "link-in-bio"
+  ],
+  "license": "ISC",
+  "author": "Muhammad Zain Ikram",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "nodemon src/index.js"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.1.0",
+    "dotenv": "^18.0.5",
+    "drizzle-orm": "^0.45.3",
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.31.11",
+    "nodemon": "^3.1.14"
+  }
+}
