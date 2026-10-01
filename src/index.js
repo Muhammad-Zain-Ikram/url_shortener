@@ -33,3 +33,20 @@ app.get('/:shortLink', async (req, res) => {
 app.listen(3000, () => {
   console.log('Server is running on port 3000');
 });
+// import express from "express";
+// import helmet from "helmet";
+// import cookieParser from "cookie-parser";
+// import routes from "./routes.js";
+// import { originCheck, errorHandler } from "./middleware.js";
+
+// const app = express();
+// app.set("trust proxy", 1);           // so req.ip is the real client IP behind Render/Railway/Nginx
+// app.disable("x-powered-by");
+// app.use(helmet());
+// app.use(express.json({ limit: "10kb" }));
+// app.use(cookieParser());
+// app.use(originCheck);
+// app.use("/auth", routes);
+// app.use(errorHandler);                // must be last
+
+// app.listen(process.env.PORT || 4000, () => console.log("API up"));
