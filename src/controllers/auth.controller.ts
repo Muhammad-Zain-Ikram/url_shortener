@@ -13,6 +13,11 @@ import { sendSuccess, sendCreated } from '../utils/responseHandler.js';
 import { AppError } from '../utils/AppError.js';
 import { SESSION_COOKIE_NAME } from '../middlewares/auth.middleware.js';
 import { googleOAuthClient } from '../config/google.js';
+import {
+  getClientIp,
+  recordFailedLogin,
+  recordSuccessfulLogin,
+} from '../middlewares/rateLimiter.js';
 
 // Cookie options helper
 function setSessionCookie(res: Response, sessionId: string): void {
@@ -176,18 +181,21 @@ export class AuthController {
 
   /**
    * 3. Password Login
-   * Restricts login to verified users only
+   * Restricts login to verified users only and tracks failed attempts for rate limiting
    */
   async login(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
+      const ip = getClientIp(req);
       const { email, password } = loginSchema.parse(req.body);
 
       const user = await userRepository.findByEmail(email);
       if (!user) {
+        await recordFailedLogin(ip, email);
         throw new AppError(401, 'Invalid email or password.', 'INVALID_CREDENTIALS');
       }
 
       if (!user.passwordHash) {
+        await recordFailedLogin(ip, email);
         throw new AppError(
           400,
           'This account was created with Google. Please sign in with Google or use Set Password.',
@@ -197,16 +205,21 @@ export class AuthController {
 
       const isValidPassword = await verifyPassword(user.passwordHash, password);
       if (!isValidPassword) {
+        await recordFailedLogin(ip, email);
         throw new AppError(401, 'Invalid email or password.', 'INVALID_CREDENTIALS');
       }
 
       if (!user.isEmailVerified) {
+        await recordFailedLogin(ip, email);
         throw new AppError(
           403,
           'Your email address is not verified yet. Please check your inbox or register again to receive a fresh verification link.',
           'EMAIL_NOT_VERIFIED'
         );
       }
+
+      // Successful login: reset failed attempt counter for this email and IP
+      await recordSuccessfulLogin(ip, email);
 
       const sessionId = await sessionRepository.createSession(user.id, user.email);
       setSessionCookie(res, sessionId);
