@@ -35,7 +35,7 @@ app.use(cookieParser());
 app.use(globalRateLimiter);
 
 // Mount main application routes
-app.use('/', router);
+app.use('/api', router);
 
 // 404 Handler - Catch-all for undefined routes
 app.use((req: Request, res: Response, next: NextFunction) => {
